@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "720465593567",
+    "project_id": "testjetpackcomposeproject",
+    "storage_bucket": "testjetpackcomposeproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720465593567:android:f5ffd282e5b560080ad56a",
+        "android_client_info": {
+          "package_name": "com.vistula.testjetpackcomposeproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsXCGuKLtYVx5h7q89yhwJx2ShXehaF-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
