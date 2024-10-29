@@ -4,12 +4,14 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -22,22 +24,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -46,6 +41,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.vistula.testjetpackcomposeproject.ItemViewModel
+import com.vistula.testjetpackcomposeproject.R
 import com.vistula.testjetpackcomposeproject.Utils.Screen
 import com.vistula.testjetpackcomposeproject.ui.theme.TestJetpackComposeProjectTheme
 
@@ -96,6 +92,7 @@ fun AddScreenContent(
         Column(
             modifier = Modifier
                 .padding(it)
+                .fillMaxWidth()
         ) {
             OutlinedTextField(
                 modifier = Modifier
@@ -115,37 +112,60 @@ fun AddScreenContent(
                 Text("Add")
             }
 
-            ImagePicker(onImagePicked = {uri ->
-                updateImageUri(uri)
-            })
 
-            imageUri?.let {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp, top = 16.dp),
-                    shape = RoundedCornerShape(30.dp)
-                ) {
+
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                uri?.let { updateImageUri(uri) }
+            }
+
+            Card(
+                onClick = {
+                    launcher.launch("image/*")
+                },
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .width(200.dp)
+                    .height(200.dp)
+                    .align(Alignment.CenterHorizontally),
+                shape = RoundedCornerShape(100.dp),
+                border = BorderStroke(2.dp, Color.White)
+            ) {
+                imageUri?.let { uri ->
                     AsyncImage(
                         modifier = Modifier
                             .fillMaxSize(),
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(it)
+                            .data(uri)
                             .crossfade(400).
                             build(),
                         contentDescription = "image",
                         contentScale = ContentScale.Crop
                     )
+                }.let {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(32.dp),
+                            painter = painterResource(R.drawable.image_search),
+                            contentDescription = "photo icon"
+                        )
+                    }
                 }
             }
-
-
         }
     }
 }
 
 @Composable
-fun ImagePicker(onImagePicked: (Uri) -> Unit) {
+fun ImagePicker(
+    onImagePicked: (Uri) -> Unit,
+) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
