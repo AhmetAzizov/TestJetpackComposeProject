@@ -14,6 +14,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.FirebaseStorage
 import com.vistula.testjetpackcomposeproject.Models.Item
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,11 @@ class ItemViewModel: ViewModel() {
     var imageUri: Uri?
         get() = _imageUri
         set(value) { _imageUri = value }
+
+    private var _loading by mutableStateOf(false)
+    var loading: Boolean
+        get() = _loading
+        set(value) { _loading = value }
 
 
     init {
@@ -64,5 +70,38 @@ class ItemViewModel: ViewModel() {
         }
     }
 
+    fun uploadImageToFirebase(
+        uri: Uri,
+        onSuccess: (String) -> Unit,
+        onFailure: (Exception) -> Unit)
+    {
+        _loading = true
 
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("images/image1.jpg")
+
+        imageRef.putFile(uri)
+            .addOnSuccessListener {
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    onSuccess(downloadUri.toString()) // Get the download URL
+
+                    _loading = false
+
+                    Log.d(TAG, "uploaded successfully")
+                }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+
+                    _loading = false
+
+                Log.d(TAG, "upload failed!")
+            }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        Log.d(TAG, "onCleared")
+    }
 }

@@ -1,6 +1,8 @@
 package com.vistula.testjetpackcomposeproject.Screens
 
 import android.net.Uri
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,7 +58,11 @@ fun AddScreen(
             nameTextField = viewModel.nameTextField,
             setNameTextField = { viewModel.nameTextField = it },
             updateImageUri = { viewModel.imageUri = it },
-            imageUri = viewModel.imageUri
+            imageUri = viewModel.imageUri,
+            uploadImage = { uri, onSuccess, onFailure ->
+                viewModel.uploadImageToFirebase(uri = uri, onSuccess, onFailure)
+            },
+            loading = viewModel.loading
         )
 }
 
@@ -66,7 +73,9 @@ fun AddScreenContent(
     nameTextField: String,
     setNameTextField: (value: String) -> Unit,
     imageUri: Uri?,
-    updateImageUri: (uri: Uri) -> Unit
+    updateImageUri: (uri: Uri) -> Unit,
+    uploadImage: (uri: Uri, (String) -> Unit, (Exception) -> Unit) -> Unit,
+    loading: Boolean
 ) {
     Scaffold(
         topBar = {
@@ -113,8 +122,6 @@ fun AddScreenContent(
             }
 
 
-
-
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.GetContent()
             ) { uri: Uri? ->
@@ -158,6 +165,36 @@ fun AddScreenContent(
                     }
                 }
             }
+
+            val context = LocalContext.current
+
+            Button(
+                onClick = {
+                    imageUri?.let {
+                        uploadImage(
+                            imageUri,
+                            {
+                                Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
+                            },
+                            {exception ->
+                                Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+
+                },
+                modifier = Modifier
+                    .padding(16.dp),
+                enabled = imageUri != null && !loading
+            ) {
+                Text(text = "Upload Image")
+            }
+
+            if (loading) CircularProgressIndicator()
+
+            Button(onClick = { navController.navigate(Screen.LoginScreen.route) }) {
+                
+            }
         }
     }
 }
@@ -186,7 +223,9 @@ fun AddScreenPreview() {
             nameTextField = "ksdfsdf",
             setNameTextField = {},
             imageUri = null,
-            updateImageUri = {}
+            updateImageUri = {},
+            uploadImage = { uri, onSuccess, onFailure -> },
+            loading = true
         )
     }
 }
