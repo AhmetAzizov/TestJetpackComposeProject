@@ -1,4 +1,4 @@
-package com.vistula.testjetpackcomposeproject.Screens
+package com.vistula.testjetpackcomposeproject.View.Screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.vistula.testjetpackcomposeproject.ItemViewModel
+import com.vistula.testjetpackcomposeproject.View.ViewModels.ItemViewModel
 import com.vistula.testjetpackcomposeproject.Models.Item
 import com.vistula.testjetpackcomposeproject.ui.theme.TestJetpackComposeProjectTheme
 
@@ -23,7 +23,7 @@ import com.vistula.testjetpackcomposeproject.ui.theme.TestJetpackComposeProjectT
 fun MainScreen(
     viewModel: ItemViewModel
 ) {
-    val itemList = viewModel.itemList
+    val itemList = viewModel.sampleState.itemList
 
     MainScreenContent(
         itemList

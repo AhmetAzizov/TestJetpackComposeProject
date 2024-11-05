@@ -69,9 +69,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.navigation:navigation-compose:2.8.3")
-//    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc02")
-
-
+    implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
 }

@@ -6,19 +6,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.vistula.testjetpackcomposeproject.ItemViewModel
-import com.vistula.testjetpackcomposeproject.Screens.AddScreen
-import com.vistula.testjetpackcomposeproject.Screens.LoginScreen
-import com.vistula.testjetpackcomposeproject.Screens.MainScreen
+import com.vistula.testjetpackcomposeproject.View.Screens.AddScreen
+import com.vistula.testjetpackcomposeproject.View.Screens.MainScreen
+import com.vistula.testjetpackcomposeproject.View.Screens.RegisterScreen
+import com.vistula.testjetpackcomposeproject.View.ViewModels.AuthenticationViewModel
+import com.vistula.testjetpackcomposeproject.View.ViewModels.ItemViewModel
 
 @Composable
 fun Navigation(
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.AddScreen.route) {
+    NavHost(navController = navController, startDestination = "auth") {
         navigation(
-            startDestination = Screen.MainScreen.route,
+            startDestination = Screen.AddScreen.route,
             route = "main"
         ) {
             composable(route = Screen.MainScreen.route) {backStackEntry ->
@@ -37,8 +38,8 @@ fun Navigation(
             route = "auth"
         ) {
             composable(route = Screen.LoginScreen.route) {backStackEntry ->
-                val viewModel: LoginScreenViewModel = viewModel(backStackEntry)
-                LoginScreen(viewModel)
+                val viewModel: AuthenticationViewModel = viewModel(backStackEntry)
+                RegisterScreen(viewModel, navController)
             }
         }
     }

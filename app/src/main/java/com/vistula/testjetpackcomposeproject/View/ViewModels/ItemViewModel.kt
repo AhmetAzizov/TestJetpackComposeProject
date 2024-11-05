@@ -1,48 +1,43 @@
-package com.vistula.testjetpackcomposeproject
+package com.vistula.testjetpackcomposeproject.View.ViewModels
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.vistula.testjetpackcomposeproject.Models.Item
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.math.log
+import com.vistula.testjetpackcomposeproject.View.States.State
+
+private const val TAG = "ItemViewModel"
 
 class ItemViewModel: ViewModel() {
 
-    private val TAG = "ItemViewModel"
-
     private val personCollectionRef = Firebase.firestore.collection("items")
-    var itemList by mutableStateOf(listOf<Item>())
 
-    private var _nameTextField by mutableStateOf("")
-    var nameTextField: String
-        get() = _nameTextField
-        set(value) { _nameTextField = value }
+    var sampleState by mutableStateOf(State())
+        private set
 
-    private var _imageUri by mutableStateOf<Uri?>(null)
-    var imageUri: Uri?
-        get() = _imageUri
-        set(value) { _imageUri = value }
+    fun updateName(newName: String) {
+        sampleState = sampleState.copy(nameTextField = newName)
+    }
 
-    private var _loading by mutableStateOf(false)
-    var loading: Boolean
-        get() = _loading
-        set(value) { _loading = value }
+    fun updateImage(uri: Uri) {
+        sampleState = sampleState.copy(imageUri = uri)
+    }
+
+    private fun toggleLoading(value: Boolean) {
+        sampleState = sampleState.copy(loading = value)
+    }
+
+    fun addItem(item: Item) {
+        val updatedList = (sampleState.itemList ?: emptyList()) + item
+        sampleState = sampleState.copy(itemList = updatedList)
+    }
 
 
     init {
@@ -65,7 +60,7 @@ class ItemViewModel: ViewModel() {
                     }
                 }
 
-                itemList = items
+                sampleState = sampleState.copy(itemList = items)
             }
         }
     }
@@ -75,7 +70,7 @@ class ItemViewModel: ViewModel() {
         onSuccess: (String) -> Unit,
         onFailure: (Exception) -> Unit)
     {
-        _loading = true
+        toggleLoading(true)
 
         val storageRef = FirebaseStorage.getInstance().reference
         val imageRef = storageRef.child("images/image1.jpg")
@@ -85,7 +80,7 @@ class ItemViewModel: ViewModel() {
                 imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     onSuccess(downloadUri.toString()) // Get the download URL
 
-                    _loading = false
+                    toggleLoading(false)
 
                     Log.d(TAG, "uploaded successfully")
                 }
@@ -93,7 +88,7 @@ class ItemViewModel: ViewModel() {
             .addOnFailureListener { exception ->
                 onFailure(exception)
 
-                    _loading = false
+                toggleLoading(false)
 
                 Log.d(TAG, "upload failed!")
             }

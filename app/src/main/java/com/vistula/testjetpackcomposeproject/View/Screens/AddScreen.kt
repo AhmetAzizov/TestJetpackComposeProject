@@ -1,7 +1,6 @@
-package com.vistula.testjetpackcomposeproject.Screens
+package com.vistula.testjetpackcomposeproject.View.Screens
 
 import android.net.Uri
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,9 +42,10 @@ import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.vistula.testjetpackcomposeproject.ItemViewModel
+import com.vistula.testjetpackcomposeproject.View.ViewModels.ItemViewModel
 import com.vistula.testjetpackcomposeproject.R
 import com.vistula.testjetpackcomposeproject.Utils.Screen
+import com.vistula.testjetpackcomposeproject.View.States.State
 import com.vistula.testjetpackcomposeproject.ui.theme.TestJetpackComposeProjectTheme
 
 @Composable
@@ -55,14 +55,12 @@ fun AddScreen(
 ) {
     AddScreenContent(
             navController = navController,
-            nameTextField = viewModel.nameTextField,
-            setNameTextField = { viewModel.nameTextField = it },
-            updateImageUri = { viewModel.imageUri = it },
-            imageUri = viewModel.imageUri,
+            state = viewModel.sampleState,
+            setNameTextField = { viewModel.updateName(it) },
+            updateImageUri = { viewModel.updateImage(it) },
             uploadImage = { uri, onSuccess, onFailure ->
                 viewModel.uploadImageToFirebase(uri = uri, onSuccess, onFailure)
-            },
-            loading = viewModel.loading
+            }
         )
 }
 
@@ -70,13 +68,13 @@ fun AddScreen(
 @Composable
 fun AddScreenContent(
     navController: NavHostController,
-    nameTextField: String,
+    state: State,
     setNameTextField: (value: String) -> Unit,
-    imageUri: Uri?,
     updateImageUri: (uri: Uri) -> Unit,
     uploadImage: (uri: Uri, (String) -> Unit, (Exception) -> Unit) -> Unit,
-    loading: Boolean
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -107,7 +105,7 @@ fun AddScreenContent(
                 modifier = Modifier
                     .padding(16.dp),
                 placeholder = { Text("Name") },
-                value = nameTextField,
+                value = state.nameTextField,
                 onValueChange = {value ->
                     setNameTextField(value)
                 }
@@ -140,11 +138,11 @@ fun AddScreenContent(
                 shape = RoundedCornerShape(100.dp),
                 border = BorderStroke(2.dp, Color.White)
             ) {
-                imageUri?.let { uri ->
+                state.imageUri?.let { uri ->
                     AsyncImage(
                         modifier = Modifier
                             .fillMaxSize(),
-                        model = ImageRequest.Builder(LocalContext.current)
+                        model = ImageRequest.Builder(context)
                             .data(uri)
                             .crossfade(400).
                             build(),
@@ -166,13 +164,11 @@ fun AddScreenContent(
                 }
             }
 
-            val context = LocalContext.current
-
             Button(
                 onClick = {
-                    imageUri?.let {
+                    state.imageUri?.let {
                         uploadImage(
-                            imageUri,
+                            state.imageUri!!,
                             {
                                 Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
                             },
@@ -185,15 +181,21 @@ fun AddScreenContent(
                 },
                 modifier = Modifier
                     .padding(16.dp),
-                enabled = imageUri != null && !loading
+                enabled = state.imageUri != null && !state.loading
             ) {
                 Text(text = "Upload Image")
             }
 
-            if (loading) CircularProgressIndicator()
+            if (state.loading) CircularProgressIndicator()
 
-            Button(onClick = { navController.navigate(Screen.LoginScreen.route) }) {
-                
+            Button(onClick = {
+                navController.navigate("auth") {
+                    popUpTo("main") {
+                        inclusive = true
+                    }
+                }
+            }) {
+                Text(text = "Authentication Screen")
             }
         }
     }
@@ -220,12 +222,10 @@ fun AddScreenPreview() {
     TestJetpackComposeProjectTheme {
         AddScreenContent(
             navController = rememberNavController(),
-            nameTextField = "ksdfsdf",
+            state = State(),
             setNameTextField = {},
-            imageUri = null,
             updateImageUri = {},
             uploadImage = { uri, onSuccess, onFailure -> },
-            loading = true
         )
     }
 }
