@@ -1,6 +1,7 @@
 package com.vistula.testjetpackcomposeproject.View.Screens
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +48,8 @@ import com.vistula.testjetpackcomposeproject.R
 import com.vistula.testjetpackcomposeproject.Utils.Screen
 import com.vistula.testjetpackcomposeproject.View.States.State
 import com.vistula.testjetpackcomposeproject.ui.theme.TestJetpackComposeProjectTheme
+
+private const val TAG = "AddScreen"
 
 @Composable
 fun AddScreen(
@@ -169,8 +172,9 @@ fun AddScreenContent(
                     state.imageUri?.let {
                         uploadImage(
                             state.imageUri!!,
-                            {
+                            { downloadUrl ->
                                 Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
+                                Log.d(TAG, "download Url: $downloadUrl")
                             },
                             {exception ->
                                 Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()

@@ -12,6 +12,12 @@ import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.vistula.testjetpackcomposeproject.Models.Item
 import com.vistula.testjetpackcomposeproject.View.States.State
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 private const val TAG = "ItemViewModel"
 
@@ -75,23 +81,44 @@ class ItemViewModel: ViewModel() {
         val storageRef = FirebaseStorage.getInstance().reference
         val imageRef = storageRef.child("images/image1.jpg")
 
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    onSuccess(downloadUri.toString()) // Get the download URL
+//        imageRef.putFile(uri)
+//            .addOnSuccessListener {
+//                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+//                    onSuccess(downloadUri.toString()) // Get the download URL
+//
+//                    toggleLoading(false)
+//
+//                    Log.d(TAG, "uploaded successfully")
+//                }
+//            }
+//            .addOnFailureListener { exception ->
+//                onFailure(exception)
+//
+//                toggleLoading(false)
+//
+//                Log.d(TAG, "upload failed!")
+//            }
 
-                    toggleLoading(false)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                imageRef.putFile(uri).await()
+                val downloadUrl = imageRef.downloadUrl.await()
 
-                    Log.d(TAG, "uploaded successfully")
+                withContext(Dispatchers.Main) {
+                    onSuccess(downloadUrl.toString())
                 }
-            }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
 
                 toggleLoading(false)
+                Log.d(TAG, "uploaded successfully")
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onFailure(e)
+                }
 
+                toggleLoading(false)
                 Log.d(TAG, "upload failed!")
             }
+        }
     }
 
     override fun onCleared() {

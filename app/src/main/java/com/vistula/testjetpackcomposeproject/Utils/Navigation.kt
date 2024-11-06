@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.vistula.testjetpackcomposeproject.View.Screens.AddScreen
 import com.vistula.testjetpackcomposeproject.View.Screens.MainScreen
 import com.vistula.testjetpackcomposeproject.View.Screens.RegisterScreen
@@ -17,7 +18,9 @@ fun Navigation(
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "auth") {
+    val startDestination = if (checkLoggedInState()) "main" else "auth"
+
+    NavHost(navController = navController, startDestination = startDestination) {
         navigation(
             startDestination = Screen.AddScreen.route,
             route = "main"
@@ -43,4 +46,9 @@ fun Navigation(
             }
         }
     }
+}
+
+private fun checkLoggedInState(): Boolean {
+    var auth = FirebaseAuth.getInstance()
+    return auth.currentUser != null
 }
