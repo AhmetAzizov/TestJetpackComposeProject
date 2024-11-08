@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
@@ -99,7 +100,7 @@ class ItemViewModel: ViewModel() {
 //                Log.d(TAG, "upload failed!")
 //            }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             try {
                 imageRef.putFile(uri).await()
                 val downloadUrl = imageRef.downloadUrl.await()
